@@ -1,5 +1,5 @@
-const Bounty = artifacts.require("Bounty");
+const BountyFactory = artifacts.require("BountyFactory");
 
 module.exports = function(deployer) {
-  deployer.deploy(Bounty);
+  deployer.deploy(BountyFactory);
 };
