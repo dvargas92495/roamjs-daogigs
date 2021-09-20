@@ -86,7 +86,7 @@ const AddBountyDialog = ({
             text: `Bounty Board:: [[${title}]]`,
             children: [
               { text: `Description:: ${description}` },
-              { text: `Compensation:: ${sourceAmount} $CABIN` },
+              { text: `Compensation:: ${sourceAmount} ETHER` },
               {
                 text: `Bounty manager(s):: ${getDisplayNameByUid(
                   getCurrentUserUid()
@@ -100,7 +100,7 @@ const AddBountyDialog = ({
                 children: [
                   {
                     text: account,
-                    children: [{ text: `${sourceAmount} $CABIN` }],
+                    children: [{ text: `${sourceAmount} ETHER` }],
                   },
                 ],
               },
@@ -158,6 +158,8 @@ const AddBountyDialog = ({
               onValueChange={(v) => setCompensation(v)}
               autoFocus
               onKeyDown={(e) => e.key === "Enter" && setStep(step + 1)}
+              minorStepSize={0.001}
+              stepSize={0.01}
             />
           </Label>
         )}

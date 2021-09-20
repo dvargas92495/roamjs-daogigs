@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
 contract Bounty {
@@ -10,40 +11,41 @@ contract Bounty {
 
   mapping(address => uint256) public sources;
   address public hunter;
+  string public tokenType = "ETHER";
 
   constructor(address source) payable {
-    require(msg.value > 0, "boo where the money at");
     sources[source] = msg.value;
     currState = State.AWAITING_HUNTER;
   }
 
-  modifier onlySource() {
-    require(
-      sources[msg.sender] > 0,
-      "Only a bounty source can call this method"
-    );
-    _;
-  }
-
-  function fund() external payable onlySource {
+  function fund() external payable {
     require(currState == State.AWAITING_HUNTER, "Already claimed");
-    currState = State.AWAITING_HUNTER;
     sources[msg.sender] += msg.value;
   }
 
   function claim() external {
-    require(sources[msg.sender] == 0, "Bounty source cannot claim bounty");
+    require(
+      sources[msg.sender] == 0 && currState == State.AWAITING_HUNTER,
+      "Bounty source cannot claim bounty"
+    );
     hunter = msg.sender;
     currState = State.AWAITING_DELIVERY;
   }
 
-  function confirmBounty() external onlySource {
+  function confirmBounty() external {
+    require(
+      sources[msg.sender] > 0,
+      "Only a bounty source can call this method"
+    );
     require(
       currState == State.AWAITING_DELIVERY,
-      "Cannot confirm without funding"
+      "Cannot confirm without claim"
     );
-    currState = State.COMPLETE;
     (bool success, ) = hunter.call{ value: sources[msg.sender] }("");
     require(success, "ETH transfer failed.");
+    sources[msg.sender] = 0;
+    if (address(this).balance == 0) {
+      currState = State.COMPLETE;
+    } 
   }
 }

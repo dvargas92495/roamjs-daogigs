@@ -1,6 +1,14 @@
-import { toConfig, runExtension, getCurrentPageUid } from "roam-client";
+import {
+  toConfig,
+  runExtension,
+  getCurrentPageUid,
+  createButtonObserver,
+  getUidsFromButton,
+  getTextByBlockUid,
+} from "roam-client";
 import { createConfigObserver, renderToast } from "roamjs-components";
 import { render } from "./AddBountyDialog";
+import { render as fundRender } from "./FundBountyDialog";
 import Web3 from "web3";
 import { Intent } from "@blueprintjs/core";
 
@@ -27,12 +35,29 @@ const loadWeb3 = () => {
       intent: Intent.WARNING,
     });
   }
-}
+};
 
 const ID = "daogigs";
 const CONFIG = toConfig(ID);
 runExtension(ID, () => {
-  createConfigObserver({ title: CONFIG, config: { tabs: [] } });
+  createConfigObserver({
+    title: CONFIG,
+    config: {
+      tabs: [
+        {
+          id: "home",
+          fields: [
+            {
+              title: "tokens",
+              type: "multitext",
+              description: "The list of ERC20",
+              defaultValue: ["ETHER"],
+            },
+          ],
+        },
+      ],
+    },
+  });
 
   loadWeb3().then(() => {
     window.roamAlphaAPI.ui.commandPalette.addCommand({
@@ -42,5 +67,24 @@ runExtension(ID, () => {
         render({ pageUid });
       },
     });
-  })
+  });
+
+  createButtonObserver({
+    attribute: "fund-bounty",
+    render: fundRender,
+  });
+
+  createButtonObserver({
+    attribute: "claim-bounty",
+    render: (b) => {
+      const { blockUid } = getUidsFromButton(b);
+      const text = getTextByBlockUid(blockUid);
+      const address = text.split(":")[1];
+      if (address) {
+
+      } else {
+
+      }
+    },
+  });
 });
